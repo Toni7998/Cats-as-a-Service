@@ -13,6 +13,10 @@ return new class extends Migration
     {
         Schema::create('cat_images', function (Blueprint $table) {
             $table->id();
+            $table->string('_id')->unique(); // Camp únic per emmagatzemar l'_id
+            $table->string('mimetype');
+            $table->integer('size');
+            $table->json('tags'); // Camp de tipus JSON per emmagatzemar les etiquetes
             $table->timestamps();
         });
     }

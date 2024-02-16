@@ -5,15 +5,26 @@ namespace App\Http\Controllers;
 use App\Models\CatImage;
 use App\Http\Requests\StoreCatImageRequest;
 use App\Http\Requests\UpdateCatImageRequest;
+use Illuminate\Http\Request;
 
 class CatImageController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $tag = $request->input('tags');
+        $offset = $request->input('offset')?? 0;
+        $limit = $request->input('limit')?? 10;
+
+
+        $cats = CatImage::select('_id', 'tags')
+                        ->where('tags', 'like', '%'.$tag.'%')
+                        ->offset($offset)
+                        ->take( $limit)
+                        ->get();
+        return response()->json($cats);
     }
 
     /**
@@ -29,7 +40,14 @@ class CatImageController extends Controller
      */
     public function store(StoreCatImageRequest $request)
     {
-        //
+        $cat = CatImage::create([
+            '_id' => $request->input('_id'),
+            'mimetype' => $request->input('mimetype'),
+            'size' => $request->input('size'),
+            'tags' => $request->input('tags'),
+        ]);
+
+        return response()->json($cat);
     }
 
     /**
@@ -37,7 +55,7 @@ class CatImageController extends Controller
      */
     public function show(CatImage $catImage)
     {
-        //
+        return $catImage;
     }
 
     /**
@@ -53,7 +71,19 @@ class CatImageController extends Controller
      */
     public function update(UpdateCatImageRequest $request, CatImage $catImage)
     {
-        //
+        $catImage->update([
+            '_id' => $request->input('_id'),
+            'mimetype' => $request->input('mimetype'),
+            'size' => $request->input('size'),
+            'tags' => $request->input('tags'),
+        ]);
+        $catImage->_id = $request->input('_id');
+        $catImage->mimetype = $request->input('mimetype');
+        $catImage->size = $request->input('size');
+        $catImage->tags = $request->input('tags');
+        $catImage->save();
+
+        return response()->json($catImage);
     }
 
     /**
@@ -61,6 +91,7 @@ class CatImageController extends Controller
      */
     public function destroy(CatImage $catImage)
     {
-        //
+            $catImage->delete();
+            return response()->json(['success' => true]);
     }
 }
